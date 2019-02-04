@@ -1,0 +1,28 @@
+#!/bin/bash 
+
+pwd="__PWD__"
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+index="$pwd/genome/junctions"
+picard="java -Xmx14g -jar /home/USSR/smb208/Projects/Software/picard-tools-1.114"
+
+# Make files appear in the same folder.... 
+# "In the current version, it is required that the current working directory also contains the sequence files to be analysed"
+mkdir -p $prefix/alignment3_junctions
+mkdir -p $prefix/alignment3_junctions/$1
+
+rm -f $prefix/alignment3_junctions/$1/*
+
+cd $prefix/alignment3_junctions/$1
+ln -s $prefix/alignment2/$1/$1.un.fq.gz_unmapped_reads.fq.gz $1.un.un.fq.gz
+
+mkdir -p tmp
+mkdir -p tmp/bismark_tmp3
+rm -rf tmp/bismark_tmp3/$1
+
+bismark -n 2 -l 50 --un --ambiguous --bowtie1 --chunkmbs 2048 --fastq --quiet --temp_dir tmp/bismark_tmp3/$1 --multicore 4 --gzip $index $1.un.un.fq.gz
+
+rm -rf tmp/bismark_tmp3/$1
+
+cd $pwd

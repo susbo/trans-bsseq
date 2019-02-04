@@ -1,0 +1,18 @@
+#!/bin/bash 
+
+pwd="__PWD__"
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+index="/servers/bio-shares/bioinf-facility/genomes/hg38/BismarkIndex"
+picard="java -Xmx14g -jar /home/USSR/smb208/Projects/Software/picard-tools-1.114"
+
+bam=`ls $prefix/alignment_combined/merged/$1.bam`
+name="$1"
+
+outdir="$prefix/bismark/$name"
+mkdir -p $outdir
+
+options="--output $outdir --genome_folder $index --bedGraph --counts --CX_context --gzip --multicore 6 --buffer_size 25%"
+
+bismark_methylation_extractor -s $options $bam

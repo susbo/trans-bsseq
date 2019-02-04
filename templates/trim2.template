@@ -1,0 +1,15 @@
+#!/bin/bash 
+
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+
+mkdir -p $prefix/trim2
+
+file=`ls $prefix/alignment/$1/$1""_trimmed.fq.gz_unmapped_reads.fq.gz`
+mkdir -p $prefix/trim2/unmapped
+$software/seqtk/seqtk trimfq -e 3 <(zcat $file) | gzip -c > $prefix/trim2/unmapped/$1.un.fq.gz
+
+file=`ls $prefix/alignment/$1/$1""_trimmed.fq.gz_ambiguous_reads.fq.gz`
+mkdir -p $prefix/trim2/ambiguous
+$software/seqtk/seqtk trimfq -e 3 <(zcat $file) | gzip -c > $prefix/trim2/ambiguous/$1.ambig.fq.gz

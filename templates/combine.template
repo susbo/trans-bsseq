@@ -1,0 +1,12 @@
+#!/bin/bash 
+
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+bams=`ls $prefix/alignment/$1/*.bam $prefix/alignment2/$1/*.bam $prefix/alignment3_junctions/splitNtoD/$1.bam`
+
+mkdir -p $prefix/alignment_combined
+
+rm -f $prefix/alignment_combined/$1.bam
+
+samtools merge $prefix/alignment_combined/$1.bam $bams

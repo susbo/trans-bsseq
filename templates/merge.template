@@ -1,0 +1,19 @@
+#!/bin/bash 
+
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+techs=`ls $prefix/alignment_combined/filtered/$1.*.bam`
+words=`echo $techs | wc -w`
+
+mkdir -p $prefix/alignment_combined/merged
+
+rm -f $prefix/alignment_combined/merged/$1.bam
+
+if [ $words -ge 2 ]; then
+	samtools merge $prefix/alignment_combined/merged/$1.bam $techs
+else
+	ln -s $prefix/alignment_combined/filtered/$1.*.bam $prefix/alignment_combined/merged/$1.bam
+fi
+
+#samtools index $prefix/alignment_combined/merged/$1.bam

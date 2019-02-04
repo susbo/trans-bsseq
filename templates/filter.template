@@ -1,0 +1,10 @@
+#!/bin/bash
+
+prefix="__PREFIX__"
+
+mkdir -p $prefix/alignment_combined/filtered
+
+bam=`ls $prefix/alignment_combined/$1.bam`
+
+cat <(samtools view -H $bam) <(samtools view $bam | awk '{tmp=$14; m=-2; while (match(tmp, /[XZH]/)) {++m; tmp=substr(tmp, RSTART+RLENGTH)}; tmp=$14; gsub("\\.","",tmp); if ((m/(length(tmp)-5+0.00001)<1/3)) print};') | samtools view -Sb - > $prefix/alignment_combined/filtered/$1.bam
+

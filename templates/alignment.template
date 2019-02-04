@@ -1,0 +1,34 @@
+#!/bin/bash 
+
+echo "Running on hosts: $SLURM_NODELIST"
+
+pwd="__PWD__"
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+index="/servers/bio-shares/bioinf-facility/genomes/hg38/BismarkIndex"
+picard="java -Xmx14g -jar /home/USSR/smb208/Projects/Software/picard-tools-1.114"
+
+R1=""$1"_trimmed.fq.gz"
+
+# Make files appear in the same folder.... 
+# "In the current version, it is required that the current working directory also contains the sequence files to be analysed"
+mkdir -p $prefix/alignment
+mkdir -p $prefix/alignment/$1
+rm -f $prefix/alignment/$1/*
+
+cd $prefix/alignment/$1
+ln -s $prefix/trim/$R1 $R1
+
+mkdir -p tmp
+mkdir -p tmp/bismark_tmp
+rm -rf tmp/bismark_tmp/$1
+
+bismark -n 2 -l 50 --un --ambiguous --bowtie1 --chunkmbs 2048 --fastq --quiet --temp_dir tmp/bismark_tmp/$1 --multicore 4 --gzip $index $R1
+# n 2 = tolerating two missmatches
+
+#bismark_methylation_extractor -s --comprehensive $prefix/alignment/"$1"_bismark.bam -o $prefix/bismark
+
+rm -rf tmp/bismark_tmp/$1
+
+cd $pwd

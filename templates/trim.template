@@ -1,0 +1,11 @@
+#!/bin/bash 
+
+prefix="__PREFIX__"
+software="/home/USSR/smb208/Projects/Software"
+
+mkdir -p $prefix/trim
+
+R1="../data/$1.fq.gz"
+
+# Must use higher stringency to avoid false 100% methylation at last position?
+$software/trim_galore --gzip --stringency 3 -e 0.2 --output_dir $prefix/trim --fastqc $R1 -a TGGAATTCTCGGGTGCCAAGGA
