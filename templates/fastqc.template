@@ -2,7 +2,6 @@
 
 prefix="__PREFIX__"
 pwd="__PWD__"
-software="/home/USSR/smb208/Projects/Software"
 
 file="$pwd/data/$1.fq.gz"
 

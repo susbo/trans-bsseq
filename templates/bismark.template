@@ -2,10 +2,8 @@
 
 pwd="__PWD__"
 prefix="__PREFIX__"
-software="/home/USSR/smb208/Projects/Software"
 
-index="/servers/bio-shares/bioinf-facility/genomes/hg38/BismarkIndex"
-picard="java -Xmx14g -jar /home/USSR/smb208/Projects/Software/picard-tools-1.114"
+index="__BISMARK_INDEX__"
 
 bam=`ls $prefix/alignment_combined/merged/$1.bam`
 name="$1"

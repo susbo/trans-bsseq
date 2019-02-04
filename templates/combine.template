@@ -1,7 +1,6 @@
 #!/bin/bash 
 
 prefix="__PREFIX__"
-software="/home/USSR/smb208/Projects/Software"
 
 bams=`ls $prefix/alignment/$1/*.bam $prefix/alignment2/$1/*.bam $prefix/alignment3_junctions/splitNtoD/$1.bam`
 

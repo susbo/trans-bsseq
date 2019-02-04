@@ -15,5 +15,3 @@ if [ $words -ge 2 ]; then
 else
 	ln -s $prefix/alignment_combined/filtered/$1.*.bam $prefix/alignment_combined/merged/$1.bam
 fi
-
-#samtools index $prefix/alignment_combined/merged/$1.bam

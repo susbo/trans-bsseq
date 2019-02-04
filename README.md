@@ -15,9 +15,10 @@ This pipeline uses many external tools and will only run on a UNIX-like environm
 
 Required software:
 
-* [Perl](https://www.perl.org)
-* [bedtools](http://bedtools.readthedocs.io/en/latest/content/installation.html)
-* DeepTools
+* Bismark
+* Samtools
+* FastQC
+* Bamtuils
 * AWK
 
 These should all be standard tools and already installed on most computer clusters.
@@ -31,10 +32,33 @@ Download all the script templates files.
 The analysis assumes that you keep your scripts, logs and raw data in the `$pwd` directory and that you are saving the output to the `$path` directory.
 
 ### Copying the raw data
-Firstly, create a `$pwd/data` directory and put the samples there after giving them meaningful names. In this example, we have 20 files named:
+Firstly, create a `$pwd/data` directory and put the samples there after giving them meaningful names. In this example, we have files named:
 `Undiff.[1-5].[78].fq.gz` and `Diff.[1-5].[78].fq.gz`.
 
 The sample names must have at least three fields separateby by a dot ".", the first is the group/treatment (Undiff or Diff), the second the biological replicate (1-5) and the third is the technical replicate (7-8). The number of fields must be saved in the `$digits` variable, any additonal fields to be put into the beginning of the file names (e.g., `Extra-info.Diff.1.7.fq.gz`) and will simply be ignored.
+
+### Preparing the Bismark junction index
+The following instructions can be used to create a splice juction genome and to index it for use with Bismark.
+````bash
+ngsutils="/path/to/ngsutils/bin"
+
+mkdir genome
+cd genome
+wget ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_28/gencode.v28.annotation.gtf.gz
+$ngsutils/gtfutils junctions -known gencode.v28.annotation.gtf.gz genome.fa > junctions/junctions.fa
+bismark_genome_preparation --bowtie1 junctions
+````
+This will create a genome at `$pwd/genome/junctions`.
+
+### Setting environmental variables before preparing the scripts
+Before preparing the scripts, please ensure that you have set the following environmental variables:
+
+* `$bismark_index` - Path to Bismark genomic index, this is a standard Bismark index for the hg38 genome
+* `$junction_index` - Path to Bismark junction index, created according to the instructions above
+* `$chrom_sizes` - Path to a [hg38.chrom_sizes](http://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.chrom.sizes) file
+* `$prefix` - Path to output directory
+* `$pwd` - Path to script directory (should be current directory)
+* `$digits` - Number of fields in each file name (does not include ".fq.gz")
 
 ### Preparing each script from a template
 Each step in the pipeline has a separate template file with the neccessary commands. In order to run it, you need to create folder (typically named after the script) and copy the script to that folder and add the correct `$pwd`, `$path` and `$digits` (here 3) to that script before running it.
@@ -43,31 +67,23 @@ The following bash function was used to copy and rename each template file:
 
 ````bash
 function prepare {
-   # Copy each script only once
-   if [ "${done_prepare[$2]}" != "1" ]; then
-      echo Preparing $2...
-      mkdir -p $pwd/$1
-      mkdir -p $pwd/$1/log
-      cp templates/$2.template $pwd/$1/$2.sh
-      sed -i "s|__PREFIX__|$prefix|g" "$pwd/$1/$2.sh"
-      sed -i "s|__PWD__|$pwd|g" "$pwd/$1/$2.sh"
-      sed -i "s|__DIGITS__|$digits|g" "$pwd/$1/$2.sh"
-      # Copy additional scripts and data
-      if [ -d "templates/$2" ]; then
-         cp -r templates/$2/* $pwd/$1
-      fi
-      done_prepare[$2]="1"
-   fi
+   mkdir -p $pwd/$1
+   mkdir -p $pwd/$1/log
+   cp templates/$2.template $pwd/$1/$2.sh
+   sed -i "s|__PREFIX__|$prefix|g" "$pwd/$1/$2.sh"
+   sed -i "s|__PWD__|$pwd|g" "$pwd/$1/$2.sh"
+   sed -i "s|__DIGITS__|$digits|g" "$pwd/$1/$2.sh"
+   sed -i "s|__BISMARK_INDEX__|$bismark_index|g" "$pwd/$1/$2.sh"
+   sed -i "s|__JUNCTION_INDEX__|$junction_index|g" "$pwd/$1/$2.sh"
+   sed -i "s|__CHROM_SIZES__|$chrom_sizes|g" "$pwd/$1/$2.sh"
 }
 ````
 
-The first argument is the target folder and the second is the template file name. The steps below assume that each template has been prepared according to these instructions.
+The first argument is the target folder and the second is the template file name. The steps below assume that each template has been prepared according to the following instructions:
 
 ````bash
-# Reset done_prepare to overwrite any previous files
-unset done_prepare; declare -A done_prepare
-
-# Prepare each template, remember to set $path, $pwd and $digits before running this.
+# Prepare each template
+# Please remember to set $path, $pwd and $digits before running this.
 prepare fastqc fastqc
 prepare trim trim
 prepare alignment alignment
@@ -85,11 +101,11 @@ prepare bismark-pool bismark-pool
 
 ### Running the scripts
 
-It is assumed in all examples below, that a sample is named according to the `Name.Repl.Tech.fq.gz` structure.
+It is assumed in all examples below, that a sample is named according to the `Name.Repl.Tech.fq.gz` structure. You should run the scripts from the $pwd directory.
 
 #### Step 1: Quality control using FastQC
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/fastqc/fastqc.sh $id
@@ -108,7 +124,7 @@ Output file:
 #### Step 2: Read trimming with Trim galore!
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/trim/trim.sh $id
@@ -130,7 +146,7 @@ Output file:
 Must wait for **Step 2** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/alignment/alignment.sh $id
@@ -153,7 +169,7 @@ Output files:
 Must wait for **Step 3** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/trim2/trim2.sh $id
@@ -176,7 +192,7 @@ Output files:
 Must wait for **Step 4** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/alignment2/alignment2.sh $id
@@ -203,7 +219,7 @@ Output files:
 Must wait for **Step 5** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/alignment3_junctions/alignment3_junctions.sh $id
@@ -225,7 +241,7 @@ Output file:
 Must wait for **Step 6** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/analysis/misc/split3.sh $id
@@ -247,7 +263,7 @@ Output file:
 Must wait for **Step 7** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/analysis/misc/combine.sh $id
@@ -272,7 +288,7 @@ Output file:
 Must wait for **Step 8** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$digits`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$digits`
 for id in $ids
 do
 	$pwd/analysis/misc/filter.sh $id
@@ -293,7 +309,7 @@ Output file:
 Must wait for **Step 9** to finish for all technical replicates with the same $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$((digits-1)) | sort | uniq`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$((digits-1)) | sort | uniq`
 for id in $ids
 do
 	$pwd/analysis/misc/merge.sh $id
@@ -314,7 +330,7 @@ Output file:
 Must wait for **Step 10** to finish for relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$((digits-1)) | sort | uniq`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$((digits-1)) | sort | uniq`
 for id in $ids
 do
 	$pwd/bismark/bismark.sh $id
@@ -336,7 +352,7 @@ Output files:
 Must wait for **Step 11** to finish for all biological replicates with the same $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$((digits-2)) | sort | uniq`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$((digits-2)) | sort | uniq`
 for id in $ids
 do
 	$pwd/analysis/misc/pool.sh $id
@@ -358,7 +374,7 @@ Output file:
 Must wait for **Step 12** to finish for the relevant $id.
 
 ````bash
-ids=`ls ../data/*.fq.gz | cut -d'/' -f3 | cut -d'.' -f1-$((digits-2)) | sort | uniq`
+ids=`ls data/*.fq.gz | cut -d'/' -f2 | cut -d'.' -f1-$((digits-2)) | sort | uniq`
 for id in $ids
 do
 	$pwd/bismark-pool/bismark-pool.sh $id
@@ -378,9 +394,9 @@ Output files:
 
 ### Version
 
-The current version is 1.0. For other the versions, see the [tags on this repository](https://github.com/your/project/tags). 
+The current version is 1.0. For other the versions, see the [tags on this repository](https://github.com/susbo/trans-bsseq/tags). 
 
-### Authors
+### Author
 
 * **Susanne Bornelöv** - [susbo](https://github.com/susbo)
 

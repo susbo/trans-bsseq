@@ -1,7 +1,6 @@
 #!/bin/bash 
 
 prefix="__PREFIX__"
-software="/home/USSR/smb208/Projects/Software"
 
 
 mkdir -p $prefix/trim2

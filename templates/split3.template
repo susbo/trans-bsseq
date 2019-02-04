@@ -3,16 +3,11 @@
 prefix="__PREFIX__"
 pwd="__PWD__"
 
-chrom_sizes="/servers/frye-bioinf/smb208/Nsun6/180514_BSseq/hub/hg38.chrom.sizes"
+chrom_sizes="__CHROM_SIZES__"
 
 mkdir -p $prefix/alignment3_junctions/split
 mkdir -p $prefix/alignment3_junctions/splitNtoD
 bam=`ls $prefix/alignment3_junctions/$1/*.bam`
 
-#export PATH="/home/USSR/smb208/anaconda2/bin:$PATH"
-#source activate sus
-
 bamutils convertregion -overlap 1 -f $bam $prefix/alignment3_junctions/split/$1.bam $chrom_sizes
 samtools view -Sb <(cat <(samtools view -H $prefix/alignment3_junctions/split/$1.bam) <(samtools view $prefix/alignment3_junctions/split/$1.bam | awk 'BEGIN{OFS="\t"} gsub("N","D",$6)')) > $prefix/alignment3_junctions/splitNtoD/$1.bam
-
-#source deactivate sus

@@ -1,7 +1,6 @@
 #!/bin/bash 
 
 prefix="__PREFIX__"
-software="/home/USSR/smb208/Projects/Software"
 
 reps=`ls $prefix/alignment_combined/merged/$1.*.bam`
 words=`echo $reps | wc -w`

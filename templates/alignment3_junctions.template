@@ -2,10 +2,8 @@
 
 pwd="__PWD__"
 prefix="__PREFIX__"
-software="/home/USSR/smb208/Projects/Software"
 
-index="$pwd/genome/junctions"
-picard="java -Xmx14g -jar /home/USSR/smb208/Projects/Software/picard-tools-1.114"
+index="__JUNCTION_INDEX__"
 
 # Make files appear in the same folder.... 
 # "In the current version, it is required that the current working directory also contains the sequence files to be analysed"
