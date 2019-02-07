@@ -51,7 +51,7 @@ This will create a splice junction index at `genome/junctions`.
 
 Go to the `demo` directory using `cd demo`. The example data is already located in the `demo/data` directory and contains two biological replicates with two technical replicates each: `Diff.[12].[78].fq.gz`. Only reads that mapped to chr1:1-3,000,000 are included in the example fastq files. A copy of the template files is also available in the `demo/templates` folder.
 
-Edit the `pipeline.sh` script to set the environmental variables (see the section on setting the environmental variables below) and then run `pipeline.sh`. If all the required software is available, the example data should be analyzed in about ~20 minutes using 24 cores.
+Edit the `pipeline.sh` script to set the environmental variables (see the section on setting the environmental variables below) and then run `pipeline.sh`. If all the required software is available, the example data should be analyzed in about 20 minutes using 24 cores at 2.3 GHz.
 
 ## Running the analysis
 The analysis assumes that you are running the analysis from the `$pwd` directory. Your scripts will be written to the `$scripts` directory and your output will be saved to the `$out` directory.
@@ -59,7 +59,7 @@ The analysis assumes that you are running the analysis from the `$pwd` directory
 ### Setting environmental variables before preparing the scripts
 Before preparing the scripts, please ensure that you have set the following environmental variables:
 
-* `$pwd` - Absolute path to the current directory. This directory must contain the `data` and `template` folders.
+* `$pwd` - Absolute path to the current directory. This directory must contain the `data` and `templates` folders.
 * `$out` - Absolute path to output directory. All results will be saved here.
 * `$scripts` - Absolute path to script directory. All scripts will be stored here.
 * `$digits` - Number of fields in each file name (does not count the ".fq.gz" part).
