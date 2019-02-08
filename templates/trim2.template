@@ -6,7 +6,7 @@ mkdir -p $out/trim2
 
 file=`ls $out/alignment/$1/$1""_trimmed.fq.gz_unmapped_reads.fq.gz`
 mkdir -p $out/trim2/unmapped
-$software/seqtk/seqtk trimfq -e 3 <(zcat $file) | gzip -c > $out/trim2/unmapped/$1.un.fq.gz
+seqtk trimfq -e 3 <(zcat $file) | gzip -c > $out/trim2/unmapped/$1.un.fq.gz
 
 file=`ls $out/alignment/$1/$1""_trimmed.fq.gz_ambiguous_reads.fq.gz`
 mkdir -p $out/trim2/ambiguous
