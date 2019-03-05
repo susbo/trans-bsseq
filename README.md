@@ -4,13 +4,13 @@ Here we describe the analysis of transcriptomic BS-seq data. This approach was u
 
 ## Getting Started
 
-These instructions will describe how to analyse transcriptomic BS-seq data. You will need access to a computer cluster or similar to run some of the following steps.
+These instructions will describe how to analyse transcriptomic BS-seq data. You will need access to a high-performance computer cluster or similar to run some of the following steps.
 
 ### Prerequisites
 
-This pipeline uses many external tools and will only run on a UNIX-like environment.
+This pipeline uses many external tools and will only run on a UNIX-like environment. It has been tested on Debian 8.
 
-Required software:
+Required external software:
 
 * Awk (v4.0.1)
 * Bismark (v0.14.4)
@@ -33,6 +33,8 @@ tar xvfc trans-bsseq-1.0.tar.gz
 cd trans-bsseq-1.0
 ````
 
+This should only take a few seconds.
+
 #### Preparing the Bismark junction index
 The following instructions can be used to create a splice juction genome and to index it for use with Bismark.
 ````bash
@@ -52,6 +54,8 @@ This will create a splice junction index at `genome/junctions`.
 Go to the `demo` directory using `cd demo`. The example data is already located in the `demo/data` directory and contains two biological replicates with two technical replicates each: `Diff.[12].[78].fq.gz`. Only reads that mapped to chr1:1-3,000,000 are included in the example fastq files. A copy of the template files is also available in the `demo/templates` folder.
 
 Edit the `pipeline.sh` script to set the environmental variables (see the section on setting the environmental variables below) and then run `pipeline.sh`. If all the required software is available, the example data should be analyzed in about 20 minutes using 24 cores at 2.3 GHz.
+
+The the output will be written to `demo/out`. Identified methylation sites we be found in `demo/out/bismark-pool/Diff` and `demo/out/bismark/Diff.[12]`. See `demo/out.expected` for expected output.
 
 ## Running the analysis
 The analysis assumes that you are running the analysis from the `$pwd` directory. Your scripts will be written to the `$scripts` directory and your output will be saved to the `$out` directory.
@@ -416,7 +420,7 @@ The current version is 1.0. For other the versions, see the [tags on this reposi
 
 ### License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
 
 ### Citation
 
