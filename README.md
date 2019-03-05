@@ -15,7 +15,7 @@ Required external software:
 * Awk (v4.0.1)
 * Bismark (v0.14.4)
 * FastQC (v0.11.3)
-* bamutils from the NGSUtils suite (v0.5.9)
+* bamutils from the NGSUtils suite (v0.5.9) (does not work with pysam >0.13.0)
 * SAMtools (v0.1.19-96b5f2294a)
 * seqtk (v1.2-r102-dirty)
 * Trim galore! (v.0.4.0)
