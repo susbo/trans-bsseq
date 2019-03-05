@@ -53,7 +53,7 @@ This will create a splice junction index at `genome/junctions`.
 
 Go to the `demo` directory using `cd demo`. The example data is already located in the `demo/data` directory and contains two biological replicates with two technical replicates each: `Diff.[12].[78].fq.gz`. Only reads that mapped to chr1:1-3,000,000 are included in the example fastq files. A copy of the template files is also available in the `demo/templates` folder.
 
-Edit the `pipeline.sh` script to set the environmental variables (see the section on setting the environmental variables below) and then run `pipeline.sh`. If all the required software is available, the example data should be analyzed in about 20 minutes using 24 cores at 2.3 GHz.
+Edit the `pipeline.sh` script to set the environmental variables (see the section on setting the environmental variables below) and then run `pipeline.sh`. If all the required software is available, the example data was analyzed in about 22 minutes with 24 cores at 2.3 GHz.
 
 The the output will be written to `demo/out`. Identified methylation sites we be found in `demo/out/bismark-pool/Diff` and `demo/out/bismark/Diff.[12]`. See `demo/out.expected` for expected output.
 
