@@ -425,5 +425,6 @@ This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.t
 ### Citation
 
 If you use this pipeline for a scientific publication, please consider citing our work:
+
 Abdulrahim A. Sajini, Nila Roy Choudhury, Rebecca E. Wagner, Susanne Bornelöv, Tommaso Selmi, Christos Spanos, Sabine Dietmann, Juri Rappsilber, Gracjan Michlewski, and Michaela Frye. (2019) Loss of 5-methylcytosine alters the biogenesis of vault-derived small RNAs to coordinate epidermal differentiation. Nature Communications 10:2550.
 
